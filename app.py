@@ -6,7 +6,10 @@ import numpy as np
 import pandas as pd
 import plotly
 import plotly.express as px
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 import json
+import data
 
 
 app = Flask(__name__)
@@ -18,13 +21,25 @@ if ENV == 'dev':
 else:
     app.debug = False
 
+
 @app.route('/')
 def notdash():
-    df = pd.DataFrame({
-      "Fruit": ["Apples", "Oranges", "Bananas", "Apples", "Oranges", "Bananas"],
-      "Amount": [4, 1, 2, 2, 4, 5],
-      "City": ["SF", "SF", "SF", "Montreal", "Montreal", "Montreal"]})
-    fig = px.bar(df, x="Fruit", y="Amount", color="City",    barmode="group")
+    df = data.standings(type = 'driverStandings', season = 'all')
+    fig = make_subplots(specs=[[{"secondary_y": True}]])
+    fig.add_trace(go.Bar(x=df['season'], y=df['round'], name='N.O. of Rounds'), secondary_y=True)
+    fig.add_trace(go.Scatter(x=df['season'], y=df['points'], name='Points'), secondary_y=False)
+    #fig = px.line(df, x="season", y="points", hover_data=['driverId'], markers=True)
+    #fig.add_bar(x=df['season'], y=df['round'])
+    #graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+    #return render_template("notdash.html", graphJSON=graphJSON)
+    return fig.show()
+
+
+@app.route('/12/9/2021')
+def old():
+    df = data.standings(type = 'driverStandings', season = 'all')
+    fig = px.line(df, x="season", y="points", hover_data=['driverId'], markers=True)
+    fig.add_bar(x=df['season'], y=df['round'])
     graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
     return render_template("notdash.html", graphJSON=graphJSON)
 
