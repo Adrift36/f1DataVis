@@ -24,15 +24,17 @@ else:
 
 @app.route('/')
 def notdash():
-    df = data.standings(type = 'driverStandings', season = 'all')
+    df = data.RequestParams([2020], [7], [1], ['Norris', 'Sainz'])
+    #df = data.standings(type = 'driverStandings', season = 'all')
     fig = make_subplots(specs=[[{"secondary_y": True}]])
-    fig.add_trace(go.Bar(x=df['season'], y=df['round'], name='N.O. of Rounds'), secondary_y=True)
-    fig.add_trace(go.Scatter(x=df['season'], y=df['points'], name='Points'), secondary_y=False)
+    fig.add_trace(go.Bar(x=df[''], y=df['round'], customdata=df['driverId'], name='N.O. of Rounds'), secondary_y=False)
+    fig.add_trace(go.Scatter(x=df['season'], y=df['points'], name='Points'), secondary_y=True)
+    fig.update_layout(hoverinfo=customdata)
     #fig = px.line(df, x="season", y="points", hover_data=['driverId'], markers=True)
     #fig.add_bar(x=df['season'], y=df['round'])
-    #graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
-    #return render_template("notdash.html", graphJSON=graphJSON)
-    return fig.show()
+    graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+    return render_template("notdash.html", graphJSON=graphJSON)
+    #return fig.show()
 
 
 @app.route('/12/9/2021')
