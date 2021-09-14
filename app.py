@@ -24,12 +24,12 @@ else:
 
 @app.route('/')
 def notdash():
-    df = data.RequestParams([2020], [7], [1], ['Norris', 'Sainz'])
+    df = data.RequestParams(2020, 7, [1], ['Norris', 'Hamilton'], limit='100').laptimes()
     #df = data.standings(type = 'driverStandings', season = 'all')
-    fig = make_subplots(specs=[[{"secondary_y": True}]])
-    fig.add_trace(go.Bar(x=df[''], y=df['round'], customdata=df['driverId'], name='N.O. of Rounds'), secondary_y=False)
-    fig.add_trace(go.Scatter(x=df['season'], y=df['points'], name='Points'), secondary_y=True)
-    fig.update_layout(hoverinfo=customdata)
+    fig = make_subplots() #specs=[[{"secondary_y": True}]]
+    fig.add_trace(go.Scatter(y=df['Norris'].str[1], y0=df['Norris'].str[0], x=df['lap'], name='norris'))
+    fig.add_trace(go.Scatter(y=df['Hamilton'].str[1], x=df['lap'], name='Hamilton'))
+    #fig.update_layout(hoverinfo=customdata)
     #fig = px.line(df, x="season", y="points", hover_data=['driverId'], markers=True)
     #fig.add_bar(x=df['season'], y=df['round'])
     graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)

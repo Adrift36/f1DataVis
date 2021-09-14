@@ -4,6 +4,7 @@ import pandas as pd
 import plotly
 import plotly.express as px
 import json
+import datetime
 
 ## TODO store round: circuit dictionary in frontend for each year
 
@@ -36,12 +37,11 @@ def getResponse(*params, limit='20', offset='0'):
     response = json.loads(requests.get(endpoint).text)
     return response
 
-
 class RequestParams:
-    def __init__(self, seasons, rounds, positions, drivers, limit='20', offset='0'):
+    def __init__(self, season, round, positions, drivers, limit='20', offset='0'):
         #self.resultsType = resultsType
-        self.seasons = seasons
-        self.rounds = rounds
+        self.season = season
+        self.round = round
         self.positions = positions
         self.drivers = drivers
         self.limit = limit
@@ -55,15 +55,21 @@ class RequestParams:
     
     #def laptimes(self, seasons, rounds, drivers, limit='100', offset='0'):
     def laptimes(self):
-        df = pd.DataFrame()
-        for season in self.seasons:
-            for round in self.rounds:
-                for driver in self.drivers:
-                    response = getResponse(season, round, 'drivers/' + driver, 'laps', limit=self.limit, offset=self.offset)
-                    #print(response)
-                    extracted = pd.DataFrame({driver: list(getNestedJSON(response, 'time'))[1:]})
-                    print(extracted)
-                    df.append(pd.DataFrame({driver: list(getNestedJSON(response, 'time'))[1:]}))
+        totalLaps = list(getNestedJSON(getResponse(self.season, self.round, 'results', '1'), 'laps'))[0]
+        df = pd.DataFrame({'lap': list(range(1, int(totalLaps) + 1))})
+        for driver in self.drivers:
+            response = getResponse(self.season, self.round, 'drivers/' + driver, 'laps', limit=self.limit, offset=self.offset)
+            times = []
+            timeLabels = list(getNestedJSON(response, 'time'))[1:]
+            for time in timeLabels:
+                split = time.replace('.', ':').split(':')
+                times.append(datetime.timedelta(minutes=int(split[0]), seconds=int(split[1]), milliseconds=int(split[2])).total_seconds())
+            #times = [time.replace('.', ':').split(':') for time in list(getNestedJSON(response, 'time'))[1:]]
+            extracted = pd.DataFrame({driver: list(zip(timeLabels, times))})
+            df = pd.concat([df, extracted], axis=1)
+            #print(extracted)
+            #df.append(pd.DataFrame({driver: list(getNestedJSON(response, 'time'))[1:]}))
+        #df = pd.DataFrame({driver: list(getNestedJSON(getResponse(self.season, self.round, 'drivers/' + driver, 'laps', limit=self.limit, offset=self.offset), 'time')) for driver in self.drivers})
         return df
 
     #def standings(self, season, round, *participant):
@@ -89,5 +95,5 @@ class RequestParams:
 
 #print(standings(type = 'driverStandings', season = 'all'))
 
-df = RequestParams([2020], [7], [1], ['Norris', 'Sainz'], limit='100')
-print(df.laptimes())
+df = RequestParams(2020, 7, [1], ['norris', 'leclerc'], limit='100')
+print(df.laptimes()['norris'].str[1])
