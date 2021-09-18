@@ -1,6 +1,7 @@
 from os import name
 from flask import Flask, render_template, request, redirect, jsonify
 import matplotlib.pyplot as plt
+from numpy.core.fromnumeric import shape
 import requests
 import numpy as np
 import pandas as pd
@@ -52,9 +53,11 @@ def ergast_():
 @app.route('/fastf1', methods=['GET', 'POST'])
 def fastf1_():
     if request.method == 'POST':
+        year = request.form['year']
+        circuit = request.form['circuit']
         drivers = request.form.getlist('drivers')
         print(drivers)
-        graphJSON = plot_lap(drivers, 2021, 'monza', 'Q')
+        graphJSON = plot_lap(drivers, int(year), circuit, 'Q')
         return render_template("plotly.html", graphJSON=graphJSON)
     else:
         return render_template('plotly.html')
