@@ -21,9 +21,22 @@ if ENV == 'dev':
 else:
     app.debug = False
 
+#def getAndPlot(drivers, year, circuit, session)
+
+def plot_lap(drivers, year, circuit, session):
+    fig = make_subplots()
+    for driver in drivers:
+        driver_data = fasterf1.get_fastest(driver, year, circuit, session)
+        fig.add_trace(go.Scatter(y=driver_data['Speed'], x=driver_data['Time'], name=driver))
+    graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+    return graphJSON
 
 @app.route('/')
-def notdash():
+def main():
+    return render_template('landing.html')
+
+@app.route('/ergast', methods=['GET', 'POST'])
+def ergast_():
     df = ergast.RequestParams(2020, 7, [1], ['Norris', 'Hamilton'], limit='100').laptimes()
     #df = data.standings(type = 'driverStandings', season = 'all')
     fig = make_subplots() #specs=[[{"secondary_y": True}]]
@@ -33,20 +46,18 @@ def notdash():
     #fig = px.line(df, x="season", y="points", hover_data=['driverId'], markers=True)
     #fig.add_bar(x=df['season'], y=df['round'])
     graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
-    return render_template("main.html", graphJSON=graphJSON)
+    return render_template("plotly.html", graphJSON=graphJSON)
     #return fig.show()
 
-@app.route('/fasterf1')
-def fastestf1():
-    bot_data = fasterf1.get_fastest('BOT', 2021, 'monza', 'Q')
-    ham_data = fasterf1.get_fastest('HAM', 2021, 'monza', 'Q')
-
-    fig = make_subplots()
-    fig.add_trace(go.Scatter(y=bot_data['Speed'], x=bot_data['Time'], name='Bottas'))
-    fig.add_trace(go.Scatter(y=ham_data['Speed'], x=ham_data['Time'], name='Hamilton'))
-
-    graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
-    return render_template("main.html", graphJSON=graphJSON)
+@app.route('/fastf1', methods=['GET', 'POST'])
+def fastf1_():
+    if request.method == 'POST':
+        drivers = request.form.getlist('drivers')
+        print(drivers)
+        graphJSON = plot_lap(drivers, 2021, 'monza', 'Q')
+        return render_template("plotly.html", graphJSON=graphJSON)
+    else:
+        return render_template('plotly.html')
 
 @app.route('/12/9/2021')
 def old():
@@ -54,7 +65,7 @@ def old():
     fig = px.line(df, x="season", y="points", hover_data=['driverId'], markers=True)
     fig.add_bar(x=df['season'], y=df['round'])
     graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
-    return render_template("main.html", graphJSON=graphJSON)
+    return render_template("plotly.html", graphJSON=graphJSON)
 
 
 if __name__ == '__main__':

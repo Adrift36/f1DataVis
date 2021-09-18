@@ -2,6 +2,16 @@ import fastf1 as ff1
 from fastf1 import plotting
 from matplotlib import pyplot as plt
 
+'''TODO:
+*make time and speed work and add axis labels
+*add dropdown to slloe for choosing year, circuit, drivers to compare
+*add ability to toggle tpeed trace, braking trace, gear trace
+*choose line colour
+*add reactive titles
+*enable zooming 
+*learn about how cache works
+'''
+
 plotting.setup_mpl()
 
 ff1.Cache.enable_cache('cache')  # optional but recommended

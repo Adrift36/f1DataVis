@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+
+<body>
+    <h1>F1 Data Viz</h1>
+    <a href='/'>Home</a>
+    <form action='/fastf1' method='POST'>
+      <select id='drivers' name='drivers' multiple>
+        <option value='HAM'>Hamilton</option>
+        <option value='BOT'>Bottas</option>
+        <option value='VER'>Verstappen</option>
+        <option value='NOR'>Norris</option>
+        <option value='RIC'>Riccardo</option>
+        <option value='GAS'>Gasly</option>
+        <option value='SAI'>Sainz</option>
+        <option value='RUS'>Russell</option>
+        <option value='VET'>Vettel</option>
+      </select>
+      <input type='submit' value='go'>
+    </form>
+    <div id="chart" class="chart"></div>
+</body>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script type="text/javascript">
+  var graphs = {{graphJSON | safe}};
+  Plotly.plot('chart',graphs,{});
+</script>
+
+</html>
