@@ -33,7 +33,7 @@ def notdash():
     #fig = px.line(df, x="season", y="points", hover_data=['driverId'], markers=True)
     #fig.add_bar(x=df['season'], y=df['round'])
     graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
-    return render_template("notdash.html", graphJSON=graphJSON)
+    return render_template("main.html", graphJSON=graphJSON)
     #return fig.show()
 
 @app.route('/fasterf1')
@@ -46,7 +46,7 @@ def fastestf1():
     fig.add_trace(go.Scatter(y=ham_data['Speed'], x=ham_data['Time'], name='Hamilton'))
 
     graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
-    return render_template("notdash.html", graphJSON=graphJSON)
+    return render_template("main.html", graphJSON=graphJSON)
 
 @app.route('/12/9/2021')
 def old():
@@ -54,7 +54,7 @@ def old():
     fig = px.line(df, x="season", y="points", hover_data=['driverId'], markers=True)
     fig.add_bar(x=df['season'], y=df['round'])
     graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
-    return render_template("notdash.html", graphJSON=graphJSON)
+    return render_template("main.html", graphJSON=graphJSON)
 
 
 if __name__ == '__main__':
